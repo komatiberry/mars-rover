@@ -18,20 +18,31 @@ public class Rover {
 	private final String MOVE_FORWARD = "M";
 	private final String INVALID = "INVALID";
 
-	public Rover(String initialXPosition, String initialYPosition, String compassPointAbbreviation, String maxX, String maxY) {
+	public Rover(String initialXPosition, String initialYPosition, String compassPointAbbreviation, String maxX, String maxY) {		
+		if (!"NEWS".contains(compassPointAbbreviation)) {
+			throw new IllegalArgumentException("Invalid Rover co-ordinates, initial compass point invalid : " + compassPointAbbreviation);
+		}
+		
 		try {
-			this.x = Integer.parseInt(initialXPosition);
-			this.y = Integer.parseInt(initialYPosition);
+			this.maxX = Integer.parseInt(maxX);
+			this.maxY = Integer.parseInt(maxY);
 		} catch (NumberFormatException nfe) {
 			throw new IllegalArgumentException("Invalid Grid co-ordinates."); 
 		}
 		
 		try {
 			this.compassPoint = compassPointAbbreviation;
-			this.maxX = Integer.parseInt(maxX);
-			this.maxY = Integer.parseInt(maxY);
+			this.x = Integer.parseInt(initialXPosition);
+			this.y = Integer.parseInt(initialYPosition);
 		} catch (NumberFormatException nfe) {
 			throw new IllegalArgumentException("Invalid Rover co-ordinates."); 
+		}
+		
+		if (x > this.maxX) {
+			throw new IllegalArgumentException("Invalid Rover co-ordinates, initial X position out of bounds."); 
+		}
+		if (y > this.maxY) {
+			throw new IllegalArgumentException("Invalid Rover co-ordinates, initial Y position out of bounds."); 
 		}
 	}
 	
@@ -41,6 +52,8 @@ public class Rover {
 				moveForward();
 			} else if (action.equalsIgnoreCase(MOVE_RIGHT) || action.equalsIgnoreCase(MOVE_LEFT)) {
 				compassPoint = changeDirection(action);
+			} else {
+				throw new RoverException("Invalid instruction : " + action);
 			}
 		}
 		return toString();
@@ -74,9 +87,9 @@ public class Rover {
 				break;
 				
 			case INVALID:
-				throw new RoverException("Invalid move instruction");
+				throw new RoverException("Invalid compass point");
 			default:
-				throw new RoverException("Invalid move instruction");
+				throw new RoverException("Invalid compass point");
 		}
 	}
 	
@@ -93,7 +106,7 @@ public class Rover {
 					case SOUTH:
 						return EAST;
 					default:
-						return compassPoint;
+						throw new RoverException("Invalid compass point");
 				}
 			case MOVE_RIGHT:
 				switch (compassPoint) {
@@ -106,7 +119,7 @@ public class Rover {
 					case SOUTH:
 						return  WEST;
 					default:
-						return compassPoint;
+						throw new RoverException("Invalid compass point");
 			}
 			default:
 				throw new RoverException("Invalid direction instruction");
