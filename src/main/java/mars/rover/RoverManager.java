@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 
 public class RoverManager {
 
@@ -13,7 +14,9 @@ public class RoverManager {
 			List<String> lines = Files.readAllLines(Paths.get(filename));
 			processInstructions(lines);
 		} catch (IOException ioe) {
-			System.out.println("Invalid Rover Instructions File : " + ioe);
+			System.out.println("Invalid Rover Instructions File : " + ioe.getMessage());
+		} catch (Exception e) {
+			System.out.println("Error processing Rover Instructions File : " + e.getMessage());
 		}
 	}
 	
@@ -34,11 +37,14 @@ public class RoverManager {
 				//per spec: 
 				// every even numbered line (after zero) is a series of instructions telling the rover how to explore the plateau
 				if (lineIndex % 2 == 0) {
-					try {
-						String result = currentRover.processActionSequence(line);
-						System.out.println(result);
-					} catch (RoverException re) {
-						System.out.println("Invalid Rover Instructions : " + re);
+					// if the currentRover is null then the previous constructor failed therefore ignore instructions
+					if (Objects.nonNull(currentRover)) {
+						try {
+							String result = currentRover.processActionSequence(line);
+							System.out.println(result);
+						} catch (RoverException re) {
+							System.out.println("Invalid Rover Instructions : " + re.getMessage());
+						}
 					}		
 				} else {
 					//per spec: every odd numbered line is the rover's initial position
@@ -46,7 +52,7 @@ public class RoverManager {
 					try {
 						currentRover = new Rover(coOrdinates[0], coOrdinates[1], coOrdinates[2], maxX, maxY);
 					} catch (IllegalArgumentException iae) {
-						System.out.println("Invalid Rover Creation Instructions : " + iae);
+						System.out.println("Invalid Rover Creation Instructions : " + iae.getMessage());
 					}
 				}				
 			}
